@@ -1,0 +1,14 @@
+{
+  "name": "hidden-developer-open-product-hunt",
+  "owner": {
+    "name": "HD Corporation"
+  },
+  "plugins": [
+    {
+      "name": "dalink",
+      "source": ".",
+      "description": "Register services and apps to dal.ink via Claude Code",
+      "version": "1.0.0"
+    }
+  ]
+}
