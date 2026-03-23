@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# AI crawlers — allow or block based on your content strategy
+# Uncomment to block specific AI crawlers:
+# User-agent: GPTBot
+# Disallow: /
+# User-agent: ClaudeBot
+# Disallow: /
+# User-agent: PerplexityBot
+# Disallow: /
+# User-agent: Google-Extended
+# Disallow: /
+
+Sitemap: https://dal.ink/sitemap-index.xml

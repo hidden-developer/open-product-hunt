@@ -17,6 +17,8 @@ const siteUrl = 'https://dal.ink';
 const defaultOgImage = `${siteUrl}/og-default.png`;
 const resolvedOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : defaultOgImage;
 const resolvedCanonical = canonicalUrl ?? Astro.url.href;
+const ogLocale = lang === 'en' ? 'en_US' : 'ko_KR';
+const ogLocaleAlternate = lang === 'en' ? 'ko_KR' : 'en_US';
 ---
 
 <!doctype html>
@@ -39,7 +41,8 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
     <meta property="og:description" content={description} />
     <meta property="og:image" content={resolvedOgImage} />
     <meta property="og:site_name" content="Dalink" />
-    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={ogLocaleAlternate} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
