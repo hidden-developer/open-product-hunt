@@ -90,11 +90,20 @@ const otherLocaleLabel = locale === 'ko' ? 'English' : '한국어';
   alternateUrls={{ ko: '/ko/', en: '/en/' }}
 >
   <Fragment slot="head">
-    <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/`} />
-    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/`} />
-    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/ko/`} />
-    <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
-    <script type="application/ld+json" set:html={JSON.stringify(itemListJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        { ...websiteJsonLd, '@context': undefined },
+        { ...itemListJsonLd, '@context': undefined },
+        {
+          '@type': 'Organization',
+          name: 'Dalink',
+          url: siteUrl,
+          logo: `${siteUrl}/favicon.svg`,
+          sameAs: ['https://github.com/hidden-developer/open-product-hunt'],
+        },
+      ],
+    })} />
   </Fragment>
 
   <!-- Hero -->

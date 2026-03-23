@@ -65,9 +65,6 @@ const personJsonLd = {
   alternateUrls={{ ko: `/ko/makers/${maker.id}/`, en: `/en/makers/${maker.id}/` }}
 >
   <Fragment slot="head">
-    <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/makers/${maker.id}/`} />
-    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/makers/${maker.id}/`} />
-    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/ko/makers/${maker.id}/`} />
     <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
   </Fragment>
 

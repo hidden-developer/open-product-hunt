@@ -99,14 +99,14 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
   alternateUrls={{ ko: `/ko/services/${service.id}/`, en: `/en/services/${service.id}/` }}
 >
   <Fragment slot="head">
-    <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/services/${service.id}/`} />
-    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/services/${service.id}/`} />
-    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/ko/services/${service.id}/`} />
-    <script type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
-    {faqJsonLd && (
-      <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
-    )}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        { ...appJsonLd, '@context': undefined },
+        { ...breadcrumbJsonLd, '@context': undefined },
+        ...(faqJsonLd ? [{ ...faqJsonLd, '@context': undefined }] : []),
+      ],
+    })} />
   </Fragment>
 
   <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">

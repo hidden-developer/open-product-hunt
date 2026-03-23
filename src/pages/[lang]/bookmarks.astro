@@ -20,6 +20,9 @@ const ui = uiLabels[locale];
   lang={locale}
   alternateUrls={{ ko: '/ko/bookmarks/', en: '/en/bookmarks/' }}
 >
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, nofollow" />
+  </Fragment>
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
     <h1 class="text-2xl font-bold text-neutral-900 dark:text-white mb-6">
       {locale === 'ko' ? '내 북마크' : 'My Bookmarks'}
