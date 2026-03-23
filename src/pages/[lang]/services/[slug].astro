@@ -90,6 +90,8 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
   description={localizedDescription}
   ogImage={service.data.ogImage ?? service.data.screenshot}
   canonicalUrl={pageUrl}
+  lang={locale}
+  alternateUrls={{ ko: `/ko/services/${service.id}/`, en: `/en/services/${service.id}/` }}
 >
   <Fragment slot="head">
     <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/services/${service.id}/`} />

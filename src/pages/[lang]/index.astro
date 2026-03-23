@@ -76,6 +76,8 @@ const otherLocaleLabel = locale === 'ko' ? 'English' : '한국어';
 <BaseLayout
   title={ui.pageTitle}
   description={ui.pageDescription}
+  lang={locale}
+  alternateUrls={{ ko: '/ko/', en: '/en/' }}
 >
   <Fragment slot="head">
     <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/`} />
