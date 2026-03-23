@@ -6,7 +6,10 @@
   "plugins": [
     {
       "name": "dalink",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "hidden-developer/open-product-hunt"
+      },
       "description": "Register services and apps to dal.ink via Claude Code",
       "version": "1.0.0"
     }
