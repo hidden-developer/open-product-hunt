@@ -1,6 +1,6 @@
 import satori from 'satori';
 import sharp from 'sharp';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { createElement } from 'satori/jsx';
 
@@ -32,22 +32,52 @@ const CATEGORY_LABEL: Record<string, string> = {
   other: '기타',
 };
 
-function loadFont(fontPath: string): ArrayBuffer | null {
+// Google Fonts API에서 Noto Sans KR 폰트를 다운로드하여 캐싱
+async function fetchGoogleFont(weight: 400 | 700): Promise<ArrayBuffer | null> {
+  const cacheDir = join(process.cwd(), 'node_modules', '.cache', 'fonts');
+  const cachePath = join(cacheDir, `NotoSansKR-${weight}.ttf`);
+
+  // 캐시에 있으면 바로 반환
+  if (existsSync(cachePath)) {
+    const buffer = readFileSync(cachePath);
+    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
+  }
+
   try {
-    const buffer = readFileSync(fontPath);
-    return buffer.buffer.slice(
-      buffer.byteOffset,
-      buffer.byteOffset + buffer.byteLength
-    ) as ArrayBuffer;
-  } catch {
+    // Google Fonts CSS API에서 TTF URL 추출
+    const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@${weight}&display=swap`;
+    const cssRes = await fetch(cssUrl, {
+      headers: {
+        // TTF를 받기 위해 오래된 User-Agent 사용
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+      },
+    });
+    const css = await cssRes.text();
+
+    // CSS에서 TTF URL 추출
+    const urlMatch = css.match(/src:\s*url\(([^)]+\.ttf)\)/);
+    if (!urlMatch) {
+      console.warn(`[og-image] Could not extract font URL for weight ${weight}`);
+      return null;
+    }
+
+    const fontRes = await fetch(urlMatch[1]);
+    const fontBuffer = await fontRes.arrayBuffer();
+
+    // 캐싱
+    mkdirSync(cacheDir, { recursive: true });
+    writeFileSync(cachePath, Buffer.from(fontBuffer));
+    console.log(`[og-image] Cached Noto Sans KR ${weight} from Google Fonts`);
+
+    return fontBuffer;
+  } catch (e) {
+    console.warn(`[og-image] Failed to fetch Noto Sans KR ${weight} from Google Fonts:`, e);
     return null;
   }
 }
 
 export async function generateOGImage(options: OGImageOptions): Promise<Buffer> {
   const { title, description, type, category } = options;
-
-  const fontDir = join(process.cwd(), 'src', 'assets', 'fonts');
 
   const fonts: {
     name: string;
@@ -56,19 +86,22 @@ export async function generateOGImage(options: OGImageOptions): Promise<Buffer> 
     style: 'normal';
   }[] = [];
 
-  const regularFont = loadFont(join(fontDir, 'NotoSansKR-Regular.ttf'));
-  const boldFont = loadFont(join(fontDir, 'NotoSansKR-Bold.ttf'));
+  // Google Fonts에서 Noto Sans KR 다운로드 (캐싱됨)
+  const [regularFont, boldFont] = await Promise.all([
+    fetchGoogleFont(400),
+    fetchGoogleFont(700),
+  ]);
 
   if (regularFont) {
     fonts.push({ name: 'Noto Sans KR', data: regularFont, weight: 400, style: 'normal' });
   } else {
-    console.warn('[og-image] NotoSansKR-Regular.ttf not found in src/assets/fonts/. Text may not render correctly.');
+    console.warn('[og-image] Failed to load Noto Sans KR Regular. Korean text may not render.');
   }
 
   if (boldFont) {
     fonts.push({ name: 'Noto Sans KR', data: boldFont, weight: 700, style: 'normal' });
   } else {
-    console.warn('[og-image] NotoSansKR-Bold.ttf not found in src/assets/fonts/. Bold text may not render correctly.');
+    console.warn('[og-image] Failed to load Noto Sans KR Bold.');
   }
 
   const typeLabel = TYPE_LABEL[type] ?? type;
