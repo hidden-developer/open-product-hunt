@@ -1,0 +1,139 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { type Locale, locales, uiLabels } from '../../utils/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'ko' } },
+    { params: { lang: 'en' } },
+  ];
+}
+
+const { lang } = Astro.params;
+const locale = lang as Locale;
+const ui = uiLabels[locale];
+---
+
+<BaseLayout
+  title={locale === 'ko' ? '내 북마크 - Dalink' : 'My Bookmarks - Dalink'}
+  description={locale === 'ko' ? '북마크한 서비스 목록' : 'Your bookmarked services'}
+  lang={locale}
+  alternateUrls={{ ko: '/ko/bookmarks/', en: '/en/bookmarks/' }}
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-white mb-6">
+      {locale === 'ko' ? '내 북마크' : 'My Bookmarks'}
+    </h1>
+
+    <!-- Login required message -->
+    <div id="bookmarks-login" class="hidden text-center py-20">
+      <svg class="w-12 h-12 mx-auto mb-3 text-neutral-300 dark:text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <p class="text-neutral-500 dark:text-neutral-400 mb-4">
+        {locale === 'ko' ? '로그인 후 북마크한 서비스를 확인할 수 있습니다.' : 'Sign in to see your bookmarked services.'}
+      </p>
+      <button
+        id="bookmarks-login-btn"
+        type="button"
+        class="px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+      >
+        {locale === 'ko' ? 'GitHub 로그인' : 'Sign in with GitHub'}
+      </button>
+    </div>
+
+    <!-- Loading state -->
+    <div id="bookmarks-loading" class="text-center py-20">
+      <div class="w-8 h-8 mx-auto border-2 border-neutral-300 border-t-blue-500 rounded-full animate-spin"></div>
+      <p class="text-sm text-neutral-400 mt-3">{locale === 'ko' ? '로딩 중...' : 'Loading...'}</p>
+    </div>
+
+    <!-- Empty state -->
+    <div id="bookmarks-empty" class="hidden text-center py-20">
+      <p class="text-neutral-400">{locale === 'ko' ? '북마크한 서비스가 없습니다.' : 'No bookmarked services yet.'}</p>
+    </div>
+
+    <!-- Bookmarks grid -->
+    <div id="bookmarks-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ locale }}>
+  import { supabase } from '../../utils/supabase';
+
+  const loginDiv = document.getElementById('bookmarks-login');
+  const loadingDiv = document.getElementById('bookmarks-loading');
+  const emptyDiv = document.getElementById('bookmarks-empty');
+  const grid = document.getElementById('bookmarks-grid');
+  const loginBtn = document.getElementById('bookmarks-login-btn');
+
+  loginBtn?.addEventListener('click', async () => {
+    if (supabase) {
+      await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: window.location.href } });
+    }
+  });
+
+  window.addEventListener('dalink:auth', async (e) => {
+    const user = e.detail?.user;
+    loadingDiv?.classList.add('hidden');
+
+    if (!user || !supabase) {
+      loginDiv?.classList.remove('hidden');
+      return;
+    }
+
+    loginDiv?.classList.add('hidden');
+
+    // Fetch bookmarks
+    const { data: bookmarks } = await supabase
+      .from('dalink_bookmarks')
+      .select('service_slug, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (!bookmarks?.length) {
+      emptyDiv?.classList.remove('hidden');
+      return;
+    }
+
+    // Fetch service data
+    const res = await fetch('/services.json');
+    const servicesData = res.ok ? await res.json() : { services: {} };
+
+    grid?.classList.remove('hidden');
+
+    for (const bm of bookmarks) {
+      const service = servicesData.services?.[bm.service_slug];
+      if (!service) continue;
+
+      const name = service.name;
+      const desc = locale === 'ko'
+        ? (service.description_ko || service.description_en || '')
+        : (service.description_en || service.description_ko || '');
+      const screenshot = service.screenshot;
+      const href = `/${locale}/services/${bm.service_slug}/`;
+
+      const card = document.createElement('a');
+      card.href = href;
+      card.className = 'block rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden hover:shadow-md transition-all';
+      card.innerHTML = `
+        <div class="aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+          ${screenshot ? `<img src="${screenshot}" alt="${name}" class="w-full h-full object-cover" loading="lazy" />` : ''}
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold text-neutral-900 dark:text-white mb-1">${name}</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">${desc}</p>
+        </div>
+      `;
+      grid?.appendChild(card);
+    }
+  });
+
+  // If no auth event fires within 2s, show login
+  setTimeout(() => {
+    if (!loadingDiv?.classList.contains('hidden')) {
+      loadingDiv?.classList.add('hidden');
+      loginDiv?.classList.remove('hidden');
+    }
+  }, 2000);
+</script>

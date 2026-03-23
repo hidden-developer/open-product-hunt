@@ -4,6 +4,9 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { type Locale, locales, getDescription, getFaq, uiLabels, categoryLabels } from '../../../utils/i18n';
 import Giscus from '../../../components/Giscus.astro';
 import StatusBadge from '../../../components/StatusBadge.astro';
+import UpvoteButton from '../../../components/UpvoteButton.astro';
+import PageViewTracker from '../../../components/PageViewTracker.astro';
+import BookmarkButton from '../../../components/BookmarkButton.astro';
 
 export async function getStaticPaths() {
   const services = await getCollection('services');
@@ -145,6 +148,7 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
           <h1 class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white">
             {service.data.name}
           </h1>
+          <UpvoteButton slug={service.id} locale={locale} />
           <StatusBadge slug={service.id} locale={locale} />
           <span class={`text-xs px-2.5 py-1 rounded-full font-medium ${
             service.data.type === 'web'
@@ -254,6 +258,8 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
           </svg>
           <span id="share-btn-label">{ui.share}</span>
         </button>
+
+        <BookmarkButton slug={service.id} locale={locale} />
       </div>
     </div>
 
@@ -344,6 +350,7 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
     )}
 
     <Giscus locale={locale} term={service.id} />
+    <PageViewTracker slug={service.id} />
   </div>
 </BaseLayout>
 

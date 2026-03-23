@@ -1,0 +1,32 @@
+---
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<div class="page-view-tracker hidden" data-slug={slug}></div>
+
+<script>
+  import { supabase, getViewerId } from '../utils/supabase';
+
+  document.querySelectorAll('.page-view-tracker').forEach(async (el) => {
+    if (!supabase) return;
+    const slug = (el as HTMLElement).dataset.slug!;
+
+    // Wait for auth to resolve, then get viewer ID
+    let userId: string | undefined;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      userId = session?.user?.id;
+    } catch {}
+
+    const viewerId = getViewerId(userId);
+
+    // Insert page view (RLS will reject duplicates within 24h)
+    await supabase.from('dalink_page_views').insert({
+      service_slug: slug,
+      viewer_id: viewerId,
+    }).then(() => {}).catch(() => {}); // Silently ignore errors (duplicates, etc.)
+  });
+</script>

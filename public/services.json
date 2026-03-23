@@ -1,0 +1,46 @@
+{
+  "services": {
+    "perplexity": {
+      "name": "Perplexity",
+      "description_ko": "AI 기반 검색 엔진. 출처가 명확한 답변으로 정보를 빠르게 탐색.",
+      "description_en": "An AI-powered search engine. Quickly explore information with cited, clear answers.",
+      "screenshot": "/screenshots/perplexity.png",
+      "type": "both",
+      "category": "ai",
+      "tags": [
+        "search",
+        "ai",
+        "research",
+        "chatbot"
+      ]
+    },
+    "raycast": {
+      "name": "Raycast",
+      "description_ko": "생산성을 극대화하는 macOS 런처 앱. 확장 프로그램으로 무한 커스터마이징.",
+      "description_en": "A macOS launcher app that maximizes productivity. Infinite customization with extensions.",
+      "screenshot": "/screenshots/raycast.png",
+      "type": "both",
+      "category": "productivity",
+      "tags": [
+        "macos",
+        "launcher",
+        "extensions",
+        "automation"
+      ]
+    },
+    "vercel": {
+      "name": "Vercel",
+      "description_ko": "프론트엔드 개발자를 위한 클라우드 플랫폼. Git push만으로 자동 배포.",
+      "description_en": "A cloud platform for frontend developers. Automatic deployment with a simple Git push.",
+      "screenshot": "/screenshots/vercel.png",
+      "type": "web",
+      "category": "developer-tools",
+      "tags": [
+        "deployment",
+        "frontend",
+        "serverless",
+        "nextjs"
+      ]
+    }
+  }
+}

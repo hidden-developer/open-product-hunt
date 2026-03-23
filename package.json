@@ -18,10 +18,13 @@
     "enrich": "tsx scripts/enrich.ts",
     "validate": "tsx scripts/validate.ts",
     "health-check": "tsx scripts/health-check.ts",
-    "fetch-issues": "tsx scripts/fetch-issues.ts"
+    "fetch-issues": "tsx scripts/fetch-issues.ts",
+    "fetch-votes": "tsx scripts/fetch-votes.ts",
+    "export-services": "tsx scripts/export-services.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.1",
+    "@supabase/supabase-js": "^2.99.3",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.0.8",
     "gray-matter": "^4.0.3",

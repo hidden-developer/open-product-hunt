@@ -1,0 +1,86 @@
+---
+interface Props {
+  locale: string;
+}
+const { locale } = Astro.props;
+const loginText = locale === 'ko' ? 'GitHub 로그인' : 'Sign in';
+const logoutText = locale === 'ko' ? '로그아웃' : 'Sign out';
+---
+
+<div id="auth-button" class="flex items-center gap-2">
+  <!-- Logged out state -->
+  <button
+    id="auth-login"
+    type="button"
+    class="text-xs font-medium px-3 py-1.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:opacity-90 transition-opacity"
+    data-login-text={loginText}
+  >
+    {loginText}
+  </button>
+
+  <!-- Logged in state (hidden by default) -->
+  <div id="auth-user" class="hidden flex items-center gap-2">
+    <img id="auth-avatar" src="" alt="" class="w-6 h-6 rounded-full" />
+    <span id="auth-name" class="text-xs text-neutral-600 dark:text-neutral-400"></span>
+    <button
+      id="auth-logout"
+      type="button"
+      class="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+      data-logout-text={logoutText}
+    >
+      {logoutText}
+    </button>
+  </div>
+</div>
+
+<script>
+  import { supabase } from '../utils/supabase';
+
+  async function initAuth() {
+    if (!supabase) return;
+
+    const loginBtn = document.getElementById('auth-login');
+    const userDiv = document.getElementById('auth-user');
+    const logoutBtn = document.getElementById('auth-logout');
+    const avatar = document.getElementById('auth-avatar') as HTMLImageElement;
+    const nameEl = document.getElementById('auth-name');
+
+    function updateUI(user: any) {
+      if (user) {
+        loginBtn?.classList.add('hidden');
+        userDiv?.classList.remove('hidden');
+        if (avatar) avatar.src = user.user_metadata?.avatar_url ?? '';
+        if (nameEl) nameEl.textContent = user.user_metadata?.user_name ?? user.email ?? '';
+      } else {
+        loginBtn?.classList.remove('hidden');
+        userDiv?.classList.add('hidden');
+      }
+      // Dispatch global auth event
+      window.dispatchEvent(new CustomEvent('dalink:auth', { detail: { user } }));
+    }
+
+    // Check existing session
+    const { data: { session } } = await supabase.auth.getSession();
+    updateUI(session?.user ?? null);
+
+    // Listen for auth changes
+    supabase.auth.onAuthStateChange((_event, session) => {
+      updateUI(session?.user ?? null);
+    });
+
+    // Login click
+    loginBtn?.addEventListener('click', async () => {
+      await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: { redirectTo: window.location.href },
+      });
+    });
+
+    // Logout click
+    logoutBtn?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+    });
+  }
+
+  initAuth();
+</script>

@@ -1,0 +1,98 @@
+---
+interface Props {
+  slug: string;
+  locale: string;
+}
+const { slug, locale } = Astro.props;
+const voteText = locale === 'ko' ? '투표' : 'Vote';
+const loginToVote = locale === 'ko' ? '로그인 후 투표' : 'Sign in to vote';
+---
+
+<div class="upvote-btn inline-flex flex-col items-center" data-slug={slug}>
+  <button
+    type="button"
+    class="upvote-trigger flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all text-neutral-500 dark:text-neutral-400"
+    data-login-text={loginToVote}
+    title={voteText}
+  >
+    <svg class="w-4 h-4 upvote-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span class="upvote-count text-xs font-bold">-</span>
+  </button>
+</div>
+
+<script>
+  import { supabase } from '../utils/supabase';
+
+  document.querySelectorAll('.upvote-btn').forEach(async (el) => {
+    const slug = (el as HTMLElement).dataset.slug!;
+    const btn = el.querySelector('.upvote-trigger') as HTMLButtonElement;
+    const countEl = el.querySelector('.upvote-count')!;
+    const arrowEl = el.querySelector('.upvote-arrow')!;
+    let currentUser: any = null;
+    let hasVoted = false;
+    let count = 0;
+
+    // Load initial count from votes.json (SSG cache) then upgrade to live
+    try {
+      const res = await fetch('/votes.json');
+      if (res.ok) {
+        const data = await res.json();
+        const entry = data.services?.[slug];
+        if (entry) { count = entry.count; countEl.textContent = String(count); }
+      }
+    } catch {}
+
+    // Then fetch live count from Supabase
+    if (supabase) {
+      const { data } = await supabase.from('dalink_vote_counts').select('count').eq('service_slug', slug).single();
+      if (data) { count = data.count; countEl.textContent = String(count); }
+    }
+
+    function updateVoteUI() {
+      if (hasVoted) {
+        btn.classList.add('border-blue-500', 'dark:border-blue-400', 'bg-blue-50', 'dark:bg-blue-950/30');
+        btn.classList.remove('border-neutral-200', 'dark:border-neutral-700');
+        arrowEl.classList.add('text-blue-600', 'dark:text-blue-400');
+        arrowEl.classList.remove('text-neutral-500', 'dark:text-neutral-400');
+      } else {
+        btn.classList.remove('border-blue-500', 'dark:border-blue-400', 'bg-blue-50', 'dark:bg-blue-950/30');
+        btn.classList.add('border-neutral-200', 'dark:border-neutral-700');
+        arrowEl.classList.remove('text-blue-600', 'dark:text-blue-400');
+        arrowEl.classList.add('text-neutral-500', 'dark:text-neutral-400');
+      }
+      countEl.textContent = String(count);
+    }
+
+    // Auth listener
+    window.addEventListener('dalink:auth', async (e: any) => {
+      currentUser = e.detail?.user;
+      if (currentUser && supabase) {
+        const { data } = await supabase.from('dalink_votes').select('id').eq('user_id', currentUser.id).eq('service_slug', slug).single();
+        hasVoted = !!data;
+        updateVoteUI();
+      }
+    });
+
+    // Click handler
+    btn.addEventListener('click', async () => {
+      if (!supabase) return;
+      if (!currentUser) {
+        await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: window.location.href } });
+        return;
+      }
+
+      // Optimistic update
+      if (hasVoted) {
+        hasVoted = false; count--;
+        updateVoteUI();
+        await supabase.from('dalink_votes').delete().eq('user_id', currentUser.id).eq('service_slug', slug);
+      } else {
+        hasVoted = true; count++;
+        updateVoteUI();
+        await supabase.from('dalink_votes').insert({ user_id: currentUser.id, service_slug: slug });
+      }
+    });
+  });
+</script>

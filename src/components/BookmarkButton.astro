@@ -1,0 +1,82 @@
+---
+interface Props {
+  slug: string;
+  locale: string;
+}
+const { slug, locale } = Astro.props;
+const bookmarkText = locale === 'ko' ? '북마크' : 'Bookmark';
+const bookmarkedText = locale === 'ko' ? '북마크됨' : 'Bookmarked';
+const loginText = locale === 'ko' ? '로그인 후 북마크' : 'Sign in to bookmark';
+---
+
+<button
+  type="button"
+  class="bookmark-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:border-amber-400 dark:hover:border-amber-500 hover:text-amber-600 transition-all"
+  data-slug={slug}
+  data-bookmark-text={bookmarkText}
+  data-bookmarked-text={bookmarkedText}
+  data-login-text={loginText}
+>
+  <svg class="w-4 h-4 bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  <span class="bookmark-label">{bookmarkText}</span>
+</button>
+
+<script>
+  import { supabase } from '../utils/supabase';
+
+  document.querySelectorAll('.bookmark-btn').forEach(async (btn) => {
+    const el = btn as HTMLButtonElement;
+    const slug = el.dataset.slug!;
+    const bookmarkText = el.dataset.bookmarkText!;
+    const bookmarkedText = el.dataset.bookmarkedText!;
+    const icon = el.querySelector('.bookmark-icon')!;
+    const label = el.querySelector('.bookmark-label')!;
+    let currentUser: any = null;
+    let isBookmarked = false;
+
+    function updateUI() {
+      if (isBookmarked) {
+        icon.setAttribute('fill', 'currentColor');
+        el.classList.add('border-amber-400', 'dark:border-amber-500', 'text-amber-600', 'dark:text-amber-400');
+        el.classList.remove('border-neutral-200', 'dark:border-neutral-700', 'text-neutral-500', 'dark:text-neutral-400');
+        label.textContent = bookmarkedText;
+      } else {
+        icon.setAttribute('fill', 'none');
+        el.classList.remove('border-amber-400', 'dark:border-amber-500', 'text-amber-600', 'dark:text-amber-400');
+        el.classList.add('border-neutral-200', 'dark:border-neutral-700', 'text-neutral-500', 'dark:text-neutral-400');
+        label.textContent = bookmarkText;
+      }
+    }
+
+    // Auth listener
+    window.addEventListener('dalink:auth', async (e: any) => {
+      currentUser = e.detail?.user;
+      if (currentUser && supabase) {
+        const { data } = await supabase.from('dalink_bookmarks').select('id').eq('user_id', currentUser.id).eq('service_slug', slug).single();
+        isBookmarked = !!data;
+        updateUI();
+      }
+    });
+
+    // Click handler
+    el.addEventListener('click', async () => {
+      if (!supabase) return;
+      if (!currentUser) {
+        await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: window.location.href } });
+        return;
+      }
+
+      if (isBookmarked) {
+        isBookmarked = false;
+        updateUI();
+        await supabase.from('dalink_bookmarks').delete().eq('user_id', currentUser.id).eq('service_slug', slug);
+      } else {
+        isBookmarked = true;
+        updateUI();
+        await supabase.from('dalink_bookmarks').insert({ user_id: currentUser.id, service_slug: slug });
+      }
+    });
+  });
+</script>

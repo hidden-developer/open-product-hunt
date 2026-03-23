@@ -73,6 +73,7 @@ const typeBadgeClass: Record<string, string> = {
         {data.name}
       </h3>
       <StatusBadge slug={id} locale="ko" />
+      <span class="vote-count text-xs text-neutral-400 ml-auto shrink-0" data-vote-slug={id}>▲</span>
     </div>
 
     <!-- Description -->
@@ -99,3 +100,20 @@ const typeBadgeClass: Record<string, string> = {
     )}
   </div>
 </a>
+
+<script>
+  (async () => {
+    try {
+      const res = await fetch('/votes.json');
+      if (!res.ok) return;
+      const data = await res.json();
+      document.querySelectorAll<HTMLElement>('.vote-count[data-vote-slug]').forEach((el) => {
+        const slug = el.dataset.voteSlug!;
+        const entry = data.services?.[slug];
+        if (entry?.count != null) {
+          el.textContent = `▲ ${entry.count}`;
+        }
+      });
+    } catch {}
+  })();
+</script>
