@@ -1,0 +1,8 @@
+{
+  "name": "dalink",
+  "description": "Register services and apps to dal.ink via Claude Code",
+  "version": "1.0.0",
+  "author": {
+    "name": "HD Corporation"
+  }
+}

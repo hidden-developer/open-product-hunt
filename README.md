@@ -32,10 +32,14 @@ The `/introduce` skill lets you register a service from **any project directory*
 
 #### Setup
 
-Add this repo as a Claude Code plugin (one-time setup):
+Add the marketplace and install the plugin (one-time setup):
 
 ```bash
-/plugin add hidden-developer/open-product-hunt
+# Register the marketplace
+/plugin marketplace add hidden-developer/open-product-hunt
+
+# Install the plugin
+/plugin install dalink@hidden-developer-open-product-hunt
 ```
 
 #### Usage
@@ -43,7 +47,7 @@ Add this repo as a Claude Code plugin (one-time setup):
 Run the following command in Claude Code from any project:
 
 ```bash
-/introduce
+/dalink:introduce
 ```
 
 The skill will interactively guide you through:
