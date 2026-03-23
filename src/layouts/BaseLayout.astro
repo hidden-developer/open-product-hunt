@@ -1,14 +1,17 @@
 ---
 import '../styles/global.css';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 
 interface Props {
   title: string;
   description: string;
   ogImage?: string;
   canonicalUrl?: string;
+  lang?: string;
+  alternateUrls?: { ko: string; en: string };
 }
 
-const { title, description, ogImage, canonicalUrl } = Astro.props;
+const { title, description, ogImage, canonicalUrl, lang = 'ko', alternateUrls } = Astro.props;
 const siteUrl = 'https://dal.ink';
 const defaultOgImage = `${siteUrl}/og-default.png`;
 const resolvedOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : defaultOgImage;
@@ -16,7 +19,7 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
 ---
 
 <!doctype html>
-<html lang="ko" class="h-full">
+<html lang={lang} class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -54,6 +57,14 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
       })();
     </script>
 
+    {alternateUrls && (
+      <>
+        <link rel="alternate" hreflang="ko" href={`https://dal.ink${alternateUrls.ko}`} />
+        <link rel="alternate" hreflang="en" href={`https://dal.ink${alternateUrls.en}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://dal.ink${alternateUrls.ko}`} />
+      </>
+    )}
+
     <slot name="head" />
   </head>
   <body class="h-full bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 antialiased flex flex-col min-h-screen">
@@ -65,9 +76,10 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
           <span class="text-blue-600 dark:text-blue-400">dal</span><span class="text-neutral-400">.ink</span>
         </a>
         <nav class="flex items-center gap-4">
-          <a href="/" class="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
+          <a href={`/${lang}/`} class="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
             홈
           </a>
+          <LanguageSwitcher currentLocale={lang} currentPath={Astro.url.pathname} />
           <a
             href="https://github.com/hidden-developer/hidden-developer.github.io"
             target="_blank"

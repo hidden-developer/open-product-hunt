@@ -35,13 +35,14 @@ export interface ServiceData {
   enriched: boolean;
 }
 
-export function generateWebSiteSchema(): object {
+export function generateWebSiteSchema(locale: string = 'ko'): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Dalink',
     url: BASE_URL,
     description: 'Open-source service & app directory. Discover and share useful tools and apps.',
+    inLanguage: locale,
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -54,13 +55,15 @@ export function generateWebSiteSchema(): object {
 }
 
 export function generateItemListSchema(
-  services: { data: ServiceData; id: string }[]
+  services: { data: ServiceData; id: string }[],
+  locale: string = 'ko'
 ): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Dalink — Service & App Directory',
     url: `${BASE_URL}/services`,
+    inLanguage: locale,
     numberOfItems: services.length,
     itemListElement: services.map((service, index) => ({
       '@type': 'ListItem',
@@ -72,7 +75,7 @@ export function generateItemListSchema(
   };
 }
 
-export function generateApplicationSchema(service: ServiceData, slug: string): object {
+export function generateApplicationSchema(service: ServiceData, slug: string, locale: string = 'ko'): object {
   const isMobile = service.type === 'app' || service.type === 'both';
   const schemaType = isMobile ? 'MobileApplication' : 'SoftwareApplication';
 
@@ -87,6 +90,7 @@ export function generateApplicationSchema(service: ServiceData, slug: string): o
     name: service.name,
     url: service.url,
     description: service.longDescription ?? service.description,
+    inLanguage: locale,
     applicationCategory: CATEGORY_MAP[service.category] ?? 'WebApplication',
     datePublished: service.publishedAt.toISOString().split('T')[0],
     author: {

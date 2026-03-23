@@ -3,25 +3,45 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-  title="페이지를 찾을 수 없습니다 - Dalink"
-  description="요청하신 페이지를 찾을 수 없습니다."
+  title="Page Not Found - Dalink"
+  description="The page you requested could not be found."
 >
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-24 flex flex-col items-center justify-center text-center min-h-[60vh]">
     <p class="text-8xl font-black text-neutral-200 dark:text-neutral-800 mb-6 select-none">404</p>
-    <h1 class="text-2xl font-bold text-neutral-900 dark:text-white mb-3">
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-white mb-3" id="not-found-title">
       페이지를 찾을 수 없습니다
     </h1>
-    <p class="text-neutral-500 dark:text-neutral-400 mb-8 max-w-sm">
+    <p class="text-neutral-500 dark:text-neutral-400 mb-8 max-w-sm" id="not-found-desc">
       요청하신 페이지가 존재하지 않거나 이동되었습니다.
     </p>
     <a
-      href="/"
+      id="not-found-home"
+      href="/ko/"
       class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
     >
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
-      홈으로 돌아가기
+      <span id="not-found-home-label">홈으로 돌아가기</span>
     </a>
   </div>
 </BaseLayout>
+
+<script is:inline>
+  (function () {
+    const path = window.location.pathname;
+    const isEn = path.startsWith('/en/');
+
+    const title = document.getElementById('not-found-title');
+    const desc = document.getElementById('not-found-desc');
+    const homeLink = document.getElementById('not-found-home');
+    const homeLabel = document.getElementById('not-found-home-label');
+
+    if (isEn) {
+      if (title) title.textContent = 'Page Not Found';
+      if (desc) desc.textContent = 'The page you requested does not exist or has been moved.';
+      if (homeLink) homeLink.href = '/en/';
+      if (homeLabel) homeLabel.textContent = 'Go to Home';
+    }
+  })();
+</script>

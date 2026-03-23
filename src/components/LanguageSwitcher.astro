@@ -1,0 +1,20 @@
+---
+interface Props {
+  currentLocale: string;
+  currentPath: string;
+}
+
+const { currentLocale, currentPath } = Astro.props;
+const alternatePath = currentLocale === 'ko'
+  ? currentPath.replace(/^\/ko(\/|$)/, '/en$1')
+  : currentPath.replace(/^\/en(\/|$)/, '/ko$1');
+const alternateLabel = currentLocale === 'ko' ? 'EN' : '한국어';
+---
+
+<a
+  href={alternatePath}
+  class="text-xs font-medium px-2 py-1 rounded-md border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+  aria-label={currentLocale === 'ko' ? 'Switch to English' : '한국어로 전환'}
+>
+  {alternateLabel}
+</a>

@@ -90,6 +90,7 @@ async function main(): Promise<void> {
   const errors: string[] = [];
   const warnings: string[] = [];
   const seenUrls = new Map<string, string>();
+  const seenSlugs = new Map<string, string>();
 
   for (const filePath of files) {
     const fileName = path.basename(filePath);
@@ -128,6 +129,16 @@ async function main(): Promise<void> {
           seenUrls.set(normalizedUrl, fileName);
         }
       }
+    }
+
+    // 3b. Slug conflict detection (filename without .md)
+    const slug = path.basename(filePath, ".md");
+    if (seenSlugs.has(slug)) {
+      errors.push(
+        `${fileName}: duplicate slug "${slug}" (conflicts with ${seenSlugs.get(slug)})`
+      );
+    } else {
+      seenSlugs.set(slug, fileName);
     }
 
     // 4. Category validation
