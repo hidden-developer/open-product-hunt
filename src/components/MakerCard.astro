@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { uiLabels, type Locale } from '../utils/i18n';
+
+interface Props {
+  maker: CollectionEntry<'makers'>;
+  serviceCount: number;
+  locale: string;
+}
+
+const { maker, serviceCount, locale } = Astro.props;
+const { data, id } = maker;
+const loc = locale as Locale;
+const ui = uiLabels[loc];
+
+const avatarUrl = data.avatar ?? `https://github.com/${data.github}.png`;
+const role = loc === 'ko' ? (data.role_ko ?? data.role_en) : (data.role_en ?? data.role_ko);
+---
+
+<a
+  href={`/${locale}/makers/${id}/`}
+  class="group flex items-center gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:shadow-md hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200"
+>
+  <!-- Avatar -->
+  <img
+    src={avatarUrl}
+    alt={data.name}
+    width="48"
+    height="48"
+    class="w-12 h-12 rounded-full object-cover shrink-0 bg-neutral-100 dark:bg-neutral-800"
+    loading="lazy"
+    decoding="async"
+  />
+
+  <!-- Info -->
+  <div class="flex-1 min-w-0">
+    <p class="font-bold text-neutral-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+      {data.name}
+    </p>
+    {role && (
+      <p class="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+        {role}
+      </p>
+    )}
+  </div>
+
+  <!-- Service count badge -->
+  <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+    {serviceCount} {ui.makerServices}
+  </span>
+</a>

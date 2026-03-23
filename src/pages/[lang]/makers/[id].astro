@@ -1,0 +1,214 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { type Locale, locales, uiLabels, getDescription } from '../../../utils/i18n';
+
+export async function getStaticPaths() {
+  const makers = await getCollection('makers');
+  const paths = [];
+  for (const locale of locales) {
+    for (const maker of makers) {
+      paths.push({
+        params: { lang: locale, id: maker.id },
+        props: { maker, locale },
+      });
+    }
+  }
+  return paths;
+}
+
+const { maker, locale } = Astro.props;
+const { lang } = Astro.params;
+const loc = locale as Locale;
+const ui = uiLabels[loc];
+
+const allServices = await getCollection('services');
+const makerServices = allServices
+  .filter((s) => s.data.author === maker.data.github)
+  .sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime());
+
+const avatarUrl = maker.data.avatar ?? `https://github.com/${maker.data.github}.png`;
+const role = loc === 'ko' ? (maker.data.role_ko ?? maker.data.role_en) : (maker.data.role_en ?? maker.data.role_ko);
+const bio = loc === 'ko' ? (maker.data.bio_ko ?? maker.data.bio_en) : (maker.data.bio_en ?? maker.data.bio_ko);
+
+const siteUrl = 'https://dal.ink';
+const pageUrl = `${siteUrl}/${loc}/makers/${maker.id}/`;
+
+const joinedDate = new Intl.DateTimeFormat(loc === 'ko' ? 'ko-KR' : 'en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(new Date(maker.data.joinedAt));
+
+// JSON-LD: Person
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: maker.data.name,
+  url: pageUrl,
+  image: avatarUrl,
+  sameAs: [
+    `https://github.com/${maker.data.github}`,
+    ...(maker.data.twitter ? [`https://twitter.com/${maker.data.twitter}`] : []),
+    ...(maker.data.website ? [maker.data.website] : []),
+  ],
+  ...(bio && { description: bio }),
+  ...(role && { jobTitle: role }),
+};
+---
+
+<BaseLayout
+  title={`${maker.data.name} - Dalink`}
+  description={bio ?? `${maker.data.name} - Dalink maker`}
+  canonicalUrl={pageUrl}
+  lang={loc}
+  alternateUrls={{ ko: `/ko/makers/${maker.id}/`, en: `/en/makers/${maker.id}/` }}
+>
+  <Fragment slot="head">
+    <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/makers/${maker.id}/`} />
+    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/makers/${maker.id}/`} />
+    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/ko/makers/${maker.id}/`} />
+    <script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+  </Fragment>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-neutral-400 dark:text-neutral-500 mb-8" aria-label="breadcrumb">
+      <a href={`/${loc}/`} class="hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">{ui.home}</a>
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <a href={`/${loc}/makers/`} class="hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">{ui.makers}</a>
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <span class="text-neutral-600 dark:text-neutral-400">{maker.data.name}</span>
+    </nav>
+
+    <!-- Profile header -->
+    <div class="flex flex-col sm:flex-row items-start gap-6 mb-10">
+      <!-- Large avatar -->
+      <img
+        src={avatarUrl}
+        alt={maker.data.name}
+        width="96"
+        height="96"
+        class="w-24 h-24 rounded-full object-cover shrink-0 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+        loading="eager"
+        decoding="async"
+      />
+
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white mb-1">
+          {maker.data.name}
+        </h1>
+        {role && (
+          <p class="text-neutral-500 dark:text-neutral-400 mb-3">{role}</p>
+        )}
+        {bio && (
+          <p class="text-neutral-700 dark:text-neutral-300 mb-4 leading-relaxed">{bio}</p>
+        )}
+
+        <!-- Links -->
+        <div class="flex flex-wrap gap-3">
+          <a
+            href={`https://github.com/${maker.data.github}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+            @{maker.data.github}
+          </a>
+
+          {maker.data.twitter && (
+            <a
+              href={`https://twitter.com/${maker.data.twitter}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              @{maker.data.twitter}
+            </a>
+          )}
+
+          {maker.data.website && (
+            <a
+              href={maker.data.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+              {maker.data.website.replace(/^https?:\/\//, '')}
+            </a>
+          )}
+
+          <span class="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-500">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {ui.joinedDate}: {joinedDate}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registered services -->
+    <section>
+      <h2 class="text-xl font-bold text-neutral-900 dark:text-white mb-4">
+        {ui.makerServices}
+        <span class="ml-2 text-sm font-normal text-neutral-500 dark:text-neutral-400">({makerServices.length})</span>
+      </h2>
+
+      {makerServices.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {makerServices.map((service) => (
+            <a
+              href={`/${loc}/services/${service.id}/`}
+              class="group block rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden hover:shadow-md hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200"
+            >
+              <div class="aspect-video bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+                {service.data.screenshot ? (
+                  <img
+                    src={service.data.screenshot}
+                    alt={`${service.data.name} screenshot`}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-neutral-300 dark:text-neutral-600">
+                    <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div class="p-4">
+                <p class="font-semibold text-neutral-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1 mb-1">
+                  {service.data.name}
+                </p>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">
+                  {getDescription(service.data, loc)}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="text-neutral-400 dark:text-neutral-500 text-sm py-8 text-center">
+          {loc === 'ko' ? '등록된 서비스가 없습니다.' : 'No registered services yet.'}
+        </p>
+      )}
+    </section>
+  </div>
+</BaseLayout>

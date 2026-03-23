@@ -1,5 +1,6 @@
 ---
 import StoreBadge from "./StoreBadge.astro";
+import StatusBadge from "./StatusBadge.astro";
 
 interface ServiceData {
   name: string;
@@ -66,10 +67,13 @@ const typeBadgeClass: Record<string, string> = {
 
   <!-- Card body -->
   <div class="flex flex-col gap-2 p-4 flex-1">
-    <!-- Name -->
-    <h3 class="text-sm font-bold text-gray-900 leading-snug line-clamp-1">
-      {data.name}
-    </h3>
+    <!-- Name + status -->
+    <div class="flex items-center gap-2 min-w-0">
+      <h3 class="text-sm font-bold text-gray-900 leading-snug line-clamp-1 min-w-0">
+        {data.name}
+      </h3>
+      <StatusBadge slug={id} locale="ko" />
+    </div>
 
     <!-- Description -->
     <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">

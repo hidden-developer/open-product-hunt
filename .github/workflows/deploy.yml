@@ -48,6 +48,14 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: enrich service metadata [skip ci]"
           git push || true
 
+      - name: Health check services
+        run: npm run health-check
+
+      - name: Fetch service request issues
+        run: npm run fetch-issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build
         run: npm run build
 

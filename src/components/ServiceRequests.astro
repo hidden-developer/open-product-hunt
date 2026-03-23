@@ -1,0 +1,91 @@
+---
+interface Props {
+  locale: string;
+}
+const { locale } = Astro.props;
+const title = locale === 'ko' ? '서비스 제안' : 'Service Requests';
+const subtitle = locale === 'ko'
+  ? '커뮤니티에서 이런 서비스를 원하고 있어요'
+  : 'The community wants these services';
+const viewAll = locale === 'ko' ? '모든 제안 보기' : 'View All Requests';
+const noRequests = locale === 'ko' ? '아직 제안이 없습니다' : 'No requests yet';
+const buildIt = locale === 'ko' ? '만들어볼래요?' : 'Want to build it?';
+const suggest = locale === 'ko' ? '제안하기' : 'Suggest';
+---
+
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-8 border-t border-neutral-200 dark:border-neutral-800">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h2 class="text-lg font-bold text-neutral-900 dark:text-white">{title}</h2>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">{subtitle}</p>
+    </div>
+    <div class="flex gap-2">
+      <a
+        href="https://github.com/hidden-developer/open-product-hunt/issues/new?template=service-request.yml"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-sm px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+      >
+        {suggest}
+      </a>
+      <a
+        href="https://github.com/hidden-developer/open-product-hunt/issues?q=is%3Aissue+is%3Aopen+label%3Aservice-request"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+      >
+        {viewAll} →
+      </a>
+    </div>
+  </div>
+
+  <div id="service-requests" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <p class="text-sm text-neutral-400 col-span-full text-center py-8" id="requests-empty">{noRequests}</p>
+  </div>
+</section>
+
+<script is:inline define:vars={{ buildIt }}>
+  fetch('/issues.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data?.issues?.length) return;
+      const container = document.getElementById('service-requests');
+      const empty = document.getElementById('requests-empty');
+      if (empty) empty.remove();
+
+      data.issues.slice(0, 6).forEach(issue => {
+        const timeAgo = getTimeAgo(new Date(issue.createdAt));
+        const card = document.createElement('a');
+        card.href = issue.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.className = 'block p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm transition-all bg-white dark:bg-neutral-900';
+        card.innerHTML = `
+          <div class="flex items-start gap-3">
+            <img src="${issue.avatar}" alt="${issue.user}" class="w-8 h-8 rounded-full" loading="lazy" />
+            <div class="flex-1 min-w-0">
+              <h3 class="font-medium text-sm text-neutral-900 dark:text-white line-clamp-2 mb-1">${issue.title}</h3>
+              <div class="flex items-center gap-3 text-xs text-neutral-400">
+                <span>@${issue.user}</span>
+                <span>${timeAgo}</span>
+                ${issue.comments > 0 ? `<span>💬 ${issue.comments}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    })
+    .catch(() => {});
+
+  function getTimeAgo(date) {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    if (days > 0) return days + 'd ago';
+    if (hours > 0) return hours + 'h ago';
+    if (minutes > 0) return minutes + 'm ago';
+    return 'just now';
+  }
+</script>

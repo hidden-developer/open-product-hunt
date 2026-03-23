@@ -2,9 +2,9 @@
 
 > 누구나 PR로 등록하는 오픈소스 서비스 & 앱 디렉토리
 
-[![GitHub Pages](https://github.com/hidden-developer/hidden-developer.github.io/actions/workflows/deploy.yml/badge.svg)](https://github.com/hidden-developer/hidden-developer.github.io/actions/workflows/deploy.yml)
+[![GitHub Pages](https://github.com/hidden-developer/open-product-hunt/actions/workflows/deploy.yml/badge.svg)](https://github.com/hidden-developer/open-product-hunt/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hidden-developer/hidden-developer.github.io/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hidden-developer/open-product-hunt/pulls)
 
 ---
 
@@ -147,7 +147,7 @@ npm run preview
 기여를 환영합니다! 다음 방법으로 참여할 수 있습니다:
 
 - **서비스 등록** — 유용한 서비스/앱을 PR로 등록해 주세요
-- **버그 리포트** — [Issues](https://github.com/hidden-developer/hidden-developer.github.io/issues)에 버그를 제보해 주세요
+- **버그 리포트** — [Issues](https://github.com/hidden-developer/open-product-hunt/issues)에 버그를 제보해 주세요
 - **기능 제안** — 새로운 아이디어가 있다면 Issue를 열어 논의해 주세요
 - **코드 기여** — 개선 사항을 PR로 보내주세요
 

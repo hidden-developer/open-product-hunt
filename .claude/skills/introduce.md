@@ -11,8 +11,8 @@ description: Register a new service/app to dal.ink by creating a PR automaticall
 
 ### Step 0: 사전 체크
 1. `gh auth status`를 실행하여 GitHub CLI 인증 상태를 확인합니다. 미인증시 "gh auth login을 먼저 실행해 주세요"라고 안내하고 중단합니다.
-2. `git remote -v`로 현재 레포가 hidden-developer/hidden-developer.github.io의 fork인지 확인합니다.
-3. fork가 아닌 경우, 사용자에게 "이 레포의 fork가 필요합니다. fork를 생성할까요?"라고 물어본 후 `gh repo fork hidden-developer/hidden-developer.github.io --clone`을 실행합니다.
+2. `git remote -v`로 현재 레포가 hidden-developer/open-product-hunt의 fork인지 확인합니다.
+3. fork가 아닌 경우, 사용자에게 "이 레포의 fork가 필요합니다. fork를 생성할까요?"라고 물어본 후 `gh repo fork hidden-developer/open-product-hunt --clone`을 실행합니다.
 
 ### Step 1: URL 수집
 사용자에게 "등록할 서비스/앱의 URL을 입력해 주세요"라고 요청합니다.
@@ -91,7 +91,7 @@ publishedAt: "{YYYY-MM-DD}"
 git checkout -b add/{slug}
 git add src/content/services/{slug}.md public/screenshots/{slug}.png
 git commit -m "Add service: {name}"
-gh pr create --repo hidden-developer/hidden-developer.github.io \
+gh pr create --repo hidden-developer/open-product-hunt \
   --title "Add service: {name}" \
   --body "## 서비스 등록\n\n- **서비스명**: {name}\n- **URL**: {url}\n- **유형**: {type}\n- **카테고리**: {category}\n\n자동 생성된 PR입니다 (/introduce 스킬 사용)"
 ```

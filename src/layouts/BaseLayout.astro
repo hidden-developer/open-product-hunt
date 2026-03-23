@@ -79,9 +79,12 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
           <a href={`/${lang}/`} class="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
             홈
           </a>
+          <a href={`/${lang}/makers/`} class="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
+            {lang === 'ko' ? '메이커' : 'Makers'}
+          </a>
           <LanguageSwitcher currentLocale={lang} currentPath={Astro.url.pathname} />
           <a
-            href="https://github.com/hidden-developer/hidden-developer.github.io"
+            href="https://github.com/hidden-developer/open-product-hunt"
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
@@ -121,7 +124,7 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
         <p>Powered by <span class="font-semibold text-neutral-700 dark:text-neutral-300">Dalink</span></p>
         <div class="flex items-center gap-6">
           <a
-            href="https://github.com/hidden-developer/hidden-developer.github.io/blob/main/CONTRIBUTING.md"
+            href="https://github.com/hidden-developer/open-product-hunt/blob/main/CONTRIBUTING.md"
             target="_blank"
             rel="noopener noreferrer"
             class="hover:text-neutral-900 dark:hover:text-white transition-colors"
@@ -129,7 +132,7 @@ const resolvedCanonical = canonicalUrl ?? Astro.url.href;
             서비스 등록하기
           </a>
           <a
-            href="https://github.com/hidden-developer/hidden-developer.github.io"
+            href="https://github.com/hidden-developer/open-product-hunt"
             target="_blank"
             rel="noopener noreferrer"
             class="hover:text-neutral-900 dark:hover:text-white transition-colors flex items-center gap-1"

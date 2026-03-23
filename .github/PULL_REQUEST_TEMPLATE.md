@@ -16,4 +16,4 @@
 ### 참고
 
 - [서비스 등록 가이드](https://dal.ink)
-- [데이터 포맷 설명](https://github.com/hidden-developer/hidden-developer.github.io#서비스-데이터-포맷)
+- [데이터 포맷 설명](https://github.com/hidden-developer/open-product-hunt#서비스-데이터-포맷)

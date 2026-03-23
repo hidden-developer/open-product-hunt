@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import MakerCard from '../../../components/MakerCard.astro';
+import { type Locale, locales, uiLabels } from '../../../utils/i18n';
+
+export async function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const locale = lang as Locale;
+const ui = uiLabels[locale];
+
+const allMakers = await getCollection('makers');
+const allServices = await getCollection('services');
+
+const makers = allMakers.sort(
+  (a, b) => new Date(a.data.joinedAt).getTime() - new Date(b.data.joinedAt).getTime()
+);
+
+function getServiceCount(github: string): number {
+  return allServices.filter((s) => s.data.author === github).length;
+}
+
+const siteUrl = 'https://dal.ink';
+---
+
+<BaseLayout
+  title={ui.makersPageTitle}
+  description={ui.makersPageDescription}
+  lang={locale}
+  alternateUrls={{ ko: '/ko/makers/', en: '/en/makers/' }}
+>
+  <Fragment slot="head">
+    <link rel="alternate" hreflang="ko" href={`${siteUrl}/ko/makers/`} />
+    <link rel="alternate" hreflang="en" href={`${siteUrl}/en/makers/`} />
+    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/ko/makers/`} />
+  </Fragment>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+    <!-- Page header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
+        {ui.makers}
+      </h1>
+      <p class="text-neutral-500 dark:text-neutral-400">
+        {ui.makersPageDescription}
+      </p>
+    </div>
+
+    <!-- Makers grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {makers.map((maker) => (
+        <MakerCard
+          maker={maker}
+          serviceCount={getServiceCount(maker.data.github)}
+          locale={locale}
+        />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

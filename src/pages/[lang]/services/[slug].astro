@@ -2,6 +2,8 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { type Locale, locales, getDescription, getFaq, uiLabels, categoryLabels } from '../../../utils/i18n';
+import Giscus from '../../../components/Giscus.astro';
+import StatusBadge from '../../../components/StatusBadge.astro';
 
 export async function getStaticPaths() {
   const services = await getCollection('services');
@@ -143,6 +145,7 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
           <h1 class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white">
             {service.data.name}
           </h1>
+          <StatusBadge slug={service.id} locale={locale} />
           <span class={`text-xs px-2.5 py-1 rounded-full font-medium ${
             service.data.type === 'web'
               ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
@@ -339,6 +342,8 @@ const faqJsonLd = localizedFaq && localizedFaq.length > 0
         </div>
       </section>
     )}
+
+    <Giscus locale={locale} term={service.id} />
   </div>
 </BaseLayout>
 

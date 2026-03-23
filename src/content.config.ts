@@ -42,4 +42,20 @@ const services = defineCollection({
   ),
 });
 
-export const collections = { services };
+const makers = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/makers" }),
+  schema: z.object({
+    name: z.string(),
+    github: z.string(),
+    avatar: z.string().optional(),
+    bio_ko: z.string().optional(),
+    bio_en: z.string().optional(),
+    website: z.string().url().optional(),
+    twitter: z.string().optional(),
+    role_ko: z.string().optional(),
+    role_en: z.string().optional(),
+    joinedAt: z.coerce.date(),
+  }),
+});
+
+export const collections = { services, makers };
