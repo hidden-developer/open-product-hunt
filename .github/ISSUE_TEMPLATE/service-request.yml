@@ -1,0 +1,68 @@
+name: "💡 서비스 제안 / Service Request"
+description: "이런 서비스가 있으면 좋겠어요 / Suggest a service idea"
+title: "[Request] "
+labels: ["service-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 서비스 제안 / Service Request
+        이런 서비스가 있으면 좋겠다고 생각하시나요? 아이디어를 공유해주세요!
+        Have an idea for a service? Share it with the community!
+
+  - type: input
+    id: service-name
+    attributes:
+      label: "서비스 이름 / Service Name"
+      description: "제안하는 서비스의 이름"
+      placeholder: "e.g., AI Code Reviewer"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "해결하려는 문제 / Problem to Solve"
+      description: "이 서비스가 어떤 문제를 해결하나요?"
+      placeholder: "코드 리뷰에 시간이 너무 오래 걸립니다..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "기대하는 기능 / Expected Features"
+      description: "어떤 기능이 있으면 좋을까요?"
+      placeholder: "- AI가 자동으로 코드를 리뷰\n- PR에 댓글로 피드백"
+
+  - type: input
+    id: similar
+    attributes:
+      label: "비슷한 서비스 / Similar Services"
+      description: "이미 비슷한 서비스가 있나요?"
+      placeholder: "e.g., CodeRabbit, Codacy"
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: "카테고리 / Category"
+      options:
+        - productivity
+        - developer-tools
+        - design
+        - communication
+        - education
+        - finance
+        - health
+        - entertainment
+        - social
+        - utilities
+        - ai
+        - other
+
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: "참여 의향 / Willing to contribute?"
+      options:
+        - label: "이 서비스를 직접 만들어볼 의향이 있습니다 / I'm willing to build this"

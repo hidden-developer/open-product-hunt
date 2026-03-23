@@ -1,0 +1,45 @@
+---
+interface Props {
+  locale: string;
+  term: string; // service slug used as discussion mapping
+}
+
+const { locale, term } = Astro.props;
+const theme = 'preferred_color_scheme';
+const lang = locale === 'ko' ? 'ko' : 'en';
+---
+
+<section class="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+  <h2 class="text-xl font-bold text-neutral-900 dark:text-white mb-4">
+    {locale === 'ko' ? '댓글' : 'Comments'}
+  </h2>
+  <div class="giscus-container">
+    <script
+      is:inline
+      src="https://giscus.app/client.js"
+      data-repo="hidden-developer/open-product-hunt"
+      data-repo-id=""
+      data-category="Comments"
+      data-category-id=""
+      data-mapping="specific"
+      data-term={term}
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="top"
+      data-theme={theme}
+      data-lang={lang}
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async
+    ></script>
+    {/* TODO: Fill in data-repo-id and data-category-id after enabling GitHub Discussions
+        on hidden-developer/open-product-hunt and visiting https://giscus.app to generate
+        the configuration. These IDs are required for giscus to function. */}
+  </div>
+  <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-3">
+    {locale === 'ko'
+      ? '댓글은 GitHub Discussions를 통해 제공됩니다. GitHub 로그인이 필요합니다.'
+      : 'Comments are powered by GitHub Discussions. GitHub login required.'}
+  </p>
+</section>

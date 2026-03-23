@@ -1,0 +1,72 @@
+---
+interface Props {
+  slug: string;
+  locale: string;
+}
+
+const { slug, locale } = Astro.props;
+
+// UI shell only — status.json is fetched client-side after load.
+// The file is generated at build time by scripts/health-check.ts and placed at public/status.json.
+---
+
+<span
+  class="status-badge inline-flex items-center gap-1 text-xs"
+  data-slug={slug}
+>
+  <span class="status-dot w-1.5 h-1.5 rounded-full bg-neutral-300"></span>
+  <span class="status-text text-neutral-400">{locale === 'ko' ? '확인 중...' : 'Checking...'}</span>
+</span>
+
+<script is:inline>
+  // Client-side: load status.json and update badges
+  fetch('/status.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data?.services) return;
+      document.querySelectorAll('.status-badge').forEach(badge => {
+        const slug = badge.dataset.slug;
+        const service = data.services[slug];
+        if (!service) return;
+
+        const dot = badge.querySelector('.status-dot');
+        const text = badge.querySelector('.status-text');
+        const isLive = service.status === 'live';
+
+        if (dot) {
+          dot.classList.remove('bg-neutral-300');
+          dot.classList.add(isLive ? 'bg-green-500' : 'bg-red-500');
+        }
+        if (text) {
+          const lang = document.documentElement.lang || 'ko';
+          const checkedAt = new Date(service.checkedAt);
+          const ago = getTimeAgo(checkedAt, lang);
+          text.textContent = isLive
+            ? (lang === 'ko' ? `Live · ${ago}` : `Live · ${ago}`)
+            : (lang === 'ko' ? `Down · ${ago}` : `Down · ${ago}`);
+          text.classList.remove('text-neutral-400');
+          text.classList.add(isLive ? 'text-green-600' : 'text-red-600');
+        }
+      });
+    })
+    .catch(() => {});
+
+  function getTimeAgo(date, lang) {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (lang === 'ko') {
+      if (days > 0) return days + '일 전 확인';
+      if (hours > 0) return hours + '시간 전 확인';
+      if (minutes > 0) return minutes + '분 전 확인';
+      return '방금 확인';
+    } else {
+      if (days > 0) return 'checked ' + days + 'd ago';
+      if (hours > 0) return 'checked ' + hours + 'h ago';
+      if (minutes > 0) return 'checked ' + minutes + 'm ago';
+      return 'just checked';
+    }
+  }
+</script>

@@ -1,0 +1,32 @@
+name: "🐛 버그 리포트 / Bug Report"
+description: "사이트에서 발견한 버그를 신고해주세요 / Report a bug"
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "버그 설명 / Bug Description"
+      description: "무엇이 잘못되었나요?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "재현 방법 / Steps to Reproduce"
+      description: "버그를 재현하는 단계"
+      placeholder: "1. Go to...\n2. Click on...\n3. See error"
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "기대 동작 / Expected Behavior"
+      description: "어떻게 동작해야 하나요?"
+
+  - type: input
+    id: url
+    attributes:
+      label: "URL"
+      description: "버그가 발생한 페이지 URL"
+      placeholder: "https://dal.ink/ko/services/..."
