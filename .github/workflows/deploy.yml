@@ -1,0 +1,64 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Prevent infinite loop from auto-commits
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+permissions:
+  contents: write    # For auto-commit of enriched data
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enrich service metadata
+        run: npm run enrich
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Auto-commit enriched data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/services/
+          git diff --staged --quiet || git commit -m "chore: enrich service metadata [skip ci]"
+          git push || true
+
+      - name: Build
+        run: npm run build
+
+      - name: Index with Pagefind
+        run: npx pagefind --site dist
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

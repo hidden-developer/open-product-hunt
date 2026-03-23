@@ -1,0 +1,8 @@
+{
+  "keywords": {
+    "gambling": ["gambling", "casino", "betting", "도박", "카지노", "베팅"],
+    "adult": ["adult", "porn", "nsfw", "성인", "19금"],
+    "illegal": ["illegal", "crack", "pirate", "불법", "해적", "크랙"],
+    "malicious": ["malware", "phishing", "scam", "피싱", "사기", "악성코드"]
+  }
+}

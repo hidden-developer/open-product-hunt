@@ -1,0 +1,77 @@
+---
+interface Props {
+  title: string;
+  text: string;
+  url: string;
+}
+
+const { title, text, url } = Astro.props;
+---
+
+<div class="relative inline-block">
+  <button
+    id="share-btn"
+    data-share-title={title}
+    data-share-text={text}
+    data-share-url={url}
+    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors cursor-pointer"
+    aria-label="공유하기"
+  >
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="18" cy="5" r="3"/>
+      <circle cx="6" cy="12" r="3"/>
+      <circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+    <span>공유하기</span>
+  </button>
+
+  <div
+    id="share-toast"
+    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-md bg-gray-900 text-white text-xs font-medium whitespace-nowrap opacity-0 pointer-events-none transition-opacity duration-200"
+    aria-live="polite"
+  >
+    복사됨!
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById("share-btn") as HTMLButtonElement | null;
+  const toast = document.getElementById("share-toast") as HTMLElement | null;
+
+  if (btn && toast) {
+    btn.addEventListener("click", async () => {
+      const shareTitle = btn.dataset.shareTitle ?? "";
+      const shareText = btn.dataset.shareText ?? "";
+      const shareUrl = btn.dataset.shareUrl ?? window.location.href;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+        } catch {
+          // user cancelled — no-op
+        }
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+      } catch {
+        const input = document.createElement("input");
+        input.value = shareUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 1800);
+    });
+  }
+</script>
