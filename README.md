@@ -39,7 +39,7 @@ Add the marketplace and install the plugin (one-time setup):
 /plugin marketplace add hidden-developer/open-product-hunt
 
 # Install the plugin
-/plugin install aff@hidden-developer-open-product-hunt
+/plugin install hd@hidden-developer-open-product-hunt
 ```
 
 #### Usage
@@ -47,7 +47,7 @@ Add the marketplace and install the plugin (one-time setup):
 Run the following command in Claude Code from any project:
 
 ```bash
-/aff:introduce
+/hd:introduce
 ```
 
 The skill will interactively guide you through:

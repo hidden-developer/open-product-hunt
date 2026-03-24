@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "aff",
+      "name": "hd",
       "source": {
         "source": "github",
         "repo": "hidden-developer/open-product-hunt"
