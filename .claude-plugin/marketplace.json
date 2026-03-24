@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "dalink",
+      "name": "aff",
       "source": {
         "source": "github",
         "repo": "hidden-developer/open-product-hunt"
